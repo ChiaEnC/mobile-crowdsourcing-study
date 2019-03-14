@@ -1,0 +1,291 @@
+{
+  "data": {
+    "questions": [
+      {
+        "id": 10,
+        "question_type_id": 3,
+        "question_type_name": "SeekBar",
+        "question_name": "點擊此通知或注意到此通知時，您的心情 ?",
+        "question_item": [
+          {
+            "answer_id": "100",
+            "name": "不好--好"
+          },
+          {
+            "answer_id": "101",
+            "name": "緊張--平靜"
+          },
+          {
+            "answer_id": "102",
+            "name": "疲累--清醒"
+          },
+          {
+            "answer_id": "103",
+            "name": "放鬆--非常有壓力"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "question_type_id": 2,
+        "question_type_name": "CheckBox",
+        "question_name": "點擊此通知或注意到此通知時，您在哪裡 ?",
+        "question_item": [
+          {
+            "answer_id": "104",
+            "name": "住宅、宿舍"
+          },
+          {
+            "answer_id": "105",
+            "name": "辦公室"
+          },
+          {
+            "answer_id": "106",
+            "name": "教室、實驗室"
+          },
+          {
+            "answer_id": "107",
+            "name": "圖書館"
+          },
+          {
+            "answer_id": "108",
+            "name": "朋友、親戚家"
+          },
+          {
+            "answer_id": "109",
+            "name": "咖啡廳"
+          },
+          {
+            "answer_id": "110",
+            "name": "餐廳"
+          },
+          {
+            "answer_id": "111",
+            "name": "休閒娛樂場所(公園、電影院、遊樂場、賣場...)"
+          },{
+            "answer_id": "112",
+            "name": "車站、機場"
+          },
+          {
+            "answer_id": "113",
+            "name": "交通工具上(公車、捷運、車、機車、腳踏車)"
+          },
+          {
+            "answer_id": "114",
+            "name": "其他"
+          }
+        ]
+      },
+//      {
+//        "id": 12,
+//        "question_type_id": 2,
+//        "question_type_name": "CheckBox",
+//        "question_name": "點擊此通知時，您正在在做什麼事情 ?",
+//        "question_item_group": "工作相關",
+//        "question_item": [
+//          {
+//            "answer_id": "119",
+//            "name": "看課本"
+//          },
+//          {
+//            "answer_id": "120",
+//            "name": "用電腦做作業或查詢資料"
+//          }, {
+//            "answer_id": "121",
+//            "name": "上課、上班"
+//          },
+//          {
+//            "answer_id": "122",
+//            "name": "開會"
+//          },
+//          {
+//            "answer_id": "123",
+//            "name": "開車、騎車"
+//          },
+//          {
+//            "answer_id": "124",
+//            "name": "通勤(等公車、捷運...)或移動中"
+//          },
+//          {
+//            "answer_id": "125",
+//            "name": "談話"
+//          },
+//          {
+//            "answer_id": "126",
+//            "name": "其他"
+//          }
+//        ]
+//      },
+      {
+        "id": 12,
+        "question_type_id": 2,
+        "question_type_name": "CheckBox",
+        "question_name": "點擊此通知或注意到此通知時，您正在在做什麼事情 ?",
+//        "question_item_group": "休閒相關",
+        "question_item": [
+          {
+            "answer_id": "115",
+            "name": "看課本"
+          },
+          {
+            "answer_id": "116",
+            "name": "用電腦做作業或查詢資料"
+          }, {
+            "answer_id": "117",
+            "name": "上課、上班"
+          },
+          {
+            "answer_id": "118",
+            "name": "開會"
+          },
+          {
+            "answer_id": "119",
+            "name": "開車、騎車"
+          },
+          {
+            "answer_id": "120",
+            "name": "通勤(等公車、捷運...)或移動中"
+          },
+          {
+            "answer_id": "121",
+            "name": "談話"
+          },
+          //          {
+          //            "answer_id": "29",
+          //            "name": "其他"
+          //          }
+          {
+            "answer_id": "122",
+            "name": "吃飯"
+          },
+          {
+            "answer_id": "123",
+            "name": "玩遊戲"
+          },
+          {
+            "answer_id": "124",
+            "name": "看課外書"
+          },
+          {
+            "answer_id": "125",
+            "name": "無聊消磨時間"
+          },
+          {
+            "answer_id": "126",
+            "name": "睡覺、休息"
+          },
+          {
+            "answer_id": "127",
+            "name": "上廁所"
+          },
+          {
+            "answer_id": "128",
+            "name": "洗澡"
+          },
+          {
+            "answer_id": "129",
+            "name": "看電視、影片"
+          },
+          {
+            "answer_id": "130",
+            "name": "玩電腦"
+          },
+          {
+            "answer_id": "131",
+            "name": "聊天"
+          },
+          {
+            "answer_id": "132",
+            "name": "忘記了"
+          },
+          {
+            "answer_id": "133",
+            "name": "其他"
+          }
+
+        ]
+      },
+      {
+        "id":13,
+        "question_type_id": 2,
+        "question_type_name": "Radio",
+        "question_name": "點擊此通知或注意到此通知時，您做這件事的狀態 ?",
+        "question_item": [
+          {
+            "answer_id": "134",
+            "name": "正準備要開始某個新活動"
+          },
+          {
+            "answer_id": "135",
+            "name": "正在執行某一件事情"
+          },
+          {
+            "answer_id": "136",
+            "name": "正要結束剛剛的活動"
+          },
+          {
+            "answer_id": "137",
+            "name": "其他"
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "question_type_id": 3,
+        "question_type_name": "SeekBar",
+        "question_name": "點擊此通知或注意到此通知時，您做這件事的專注程度 ?",
+        "question_item": [
+          {
+            "answer_id": "138",
+            "name": " 非常不投入-- 5 非常投入"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "question_type_id": 2,
+        "question_type_name": "CheckBox",
+        "question_name": "點擊此通知或注意到此通知時，在您身邊互動的有誰 ?",
+        "question_item": [
+          {
+            "answer_id": "139",
+            "name": "另一半"
+          },
+          {
+            "answer_id": "140",
+            "name": "朋友"
+          },
+          {
+            "answer_id": "141",
+            "name": "同學"
+          },
+          {
+            "answer_id": "142",
+            "name": "家人"
+          },
+          {
+            "answer_id": "143",
+            "name": "同學、同事"
+          },
+          {
+            "answer_id": "144",
+            "name": "老師、教授、上司"
+          },
+          {
+            "answer_id": "145",
+            "name": "學生、下屬"
+          },
+          {
+            "answer_id": "146",
+            "name": "陌生人"
+          },{
+            "answer_id": "147",
+            "name": "我自己一個人"
+          }
+        ]
+      }
+        ]
+  },
+  "status": true,
+  "message": "The data was fetched successfully"
+}

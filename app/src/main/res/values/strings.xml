@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">MobilecrowdsourceStudy</string>
+    <string name="dialog_enable_accessibility_msg">Allow permission to show window over other apps on Android 7.1.1+ </string>
+    <string name="dialog_enable_accessibility_positive_btn">Enable It </string>
+    <string name="sharedPreference">edu.nctu.minuku</string>
+    <string name="start_questionnaire">開始問卷</string>
+    <string name="show_result">觀看紀錄</string>
+    <string name="finish">Finish</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="article_subtitle">\n由企業或組織透過網路向大眾取得企業所需的資訊\n</string>
+    <string name="article_text">
+        "現今，越來越多企業提供用戶數位服務，藉由智能化的數位服務來增進和用戶之間的互動。\n"
+        "在數位服務智能化中常見的做法是收集用戶行為資料來訓練得到預測模型，利用這些模型預測的結果提供相對應的服務。"
+        " 比如，藉由模型預測出可能流失的客戶，以即時提供近期優惠資訊來保留客群。"
+        "或者，藉由模型推出兩筆交易來自有親屬關係的客群，以提供家庭促銷的方案。\n"
+    </string>
+    <string name="goal">"此研究利用在現場收集的註釋情境因素找到影響執行群眾外包工作意願之情境因素和動機\n"</string>
+    <string name="goal_text">
+        "我們基於關鍵的情境要素(例如：位置、時間)，修改一個名為Minuku的Android應用程序其偵測方式以及問卷內容。"
+        "利用此研究工具偵測群眾外包工作發生的時刻，並記錄當下的情境資訊"
+        "，例如：群眾外包工作出現在手機的時間、當下的地點、動機以及使用者執行群眾外包工作的意願"
+
+    </string>
+    <string name="information">
+        "\n研究機構 : 交通大學資訊工程系\n"
+        "聯絡人姓名：蔣佳恩\n"
+        "單位：交大資工多媒體工程研究所\n"
+        "手機：0983045190\n"
+        "E-mail：vivian123.cs02@gmail.com \n"
+        "聯絡地址： 30010新竹市大學路1001號電子資訊大樓715室"
+    </string>
+    <string name="note_head">
+        "收集群眾外包情境數據流程\n"
+    </string>
+    <string name="note_text">
+        "歷時：6周(30個工作日)\n"
+        "過程：您需執行google local guides 和 google crowdsource app 群眾外包的工作"
+        "當Minuku偵測到群眾外包工作出現於您手機上時，它將開始記錄當下的情境資訊並且記錄您執行的狀況、成果。"
+        "當執行結束約三分鐘後，Minuku將發出問卷，詢問和當時情況相關的資訊"
+        "希望您能盡量當下回答該問卷，回答問卷僅需1~2分鐘。\n"
+        "需完成：1(來自群眾外包)+2(來自非群眾外包) 以上的問卷\n\n"
+
+    </string>
+    <string name="copy_right">Copyright©2018-2019 NCTU-MUILAB,All rights reserved.</string>
+    <string name="device_id">Device Id</string>
+    <string name="empty_directory">Empty Directory</string>
+    <string name="storage_removed">Storage was removed or unmounted.</string>
+    <string name="choose_file">Select a file</string>
+    <string name="error_selecting_file">Error selecting File</string>
+    <string name="internal_storage">Internal storage</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="btnCapture">REC</string>
+    <string name="no_questionnaire">"尚無問卷"</string>
+    <string name="have_questionnaire">"開始問卷"</string>
+
+</resources>

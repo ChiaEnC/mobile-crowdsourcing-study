@@ -1,0 +1,121 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    dexOptions {
+        preDexLibraries = false
+    }
+}
+
+// for fabric
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        // These docs use an open ended version so that our plugin
+        // can be updated quickly in response to Android tooling updates
+
+        // We recommend changing it to the latest version from our changelog:
+        // https://docs.fabric.io/android/changelog.html#fabric-gradle-plugin
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+
+
+dependencies {
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.0'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:26.0.+'
+
+    implementation 'com.android.support:multidex:1.0.3'
+    compile project(':opencsv-3.10')
+    // room library
+    compile 'android.arch.persistence.room:runtime:1.0.0'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
+    //noinspection GradleCompatible
+    implementation 'com.google.android.gms:play-services-maps:12.0.1'
+    implementation 'com.google.android.gms:play-services-auth:12.0.1'
+    implementation 'com.google.android.gms:play-services-location:12.0.1'
+    implementation 'com.google.android.gms:play-services:12.0.1'
+    implementation 'com.google.android.gms:play-services-ads:12.0.1'
+    implementation 'org.apache.commons:commons-lang3:3.0'
+    compile 'com.android.support:cardview-v7:26.1.0'
+    compile 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.support:design:26.1.0'
+    implementation project(':minuku2-extended')
+    implementation project(':minukucore')
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.github.humazed:RoomAsset:v1.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
+        transitive = true;
+    }
+    implementation files('/Users/chiaenchiang/Desktop/new/crowdsourceDectctionNew/opencsv-4.3.2.jar')
+    // for retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    // for http logging interceptor
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+
+    // for volley
+    compile 'com.android.volley:volley:1.0.0'
+    // for reactive
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.14'
+   // implementation 'com.android.support.constraint:constraint-layout:2.0.0-alpha2'
+    // for video recording
+
+
+
+
+}
+
+apply plugin: 'com.google.gms.google-services'
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url 'https://maven.google.com' }
+
+        google()
+    }
+    subprojects {
+        project.configurations.all {
+            resolutionStrategy.eachDependency { details ->
+                if (details.requested.group == 'com.google.android.gms'
+                        && !details.requested.name.contains('multidex') ) {
+                    details.useVersion "12.0.1"
+                }
+            }
+        }
+    }
+}

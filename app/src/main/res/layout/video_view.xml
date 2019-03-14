@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+>
+
+<TextView
+    android:id="@+id/videoTextTextView"
+    style="?android:textAppearanceMedium"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:lineSpacingMultiplier="1.2"
+    android:padding="16dp"
+    android:textColor="@color/colorPrimaryDark"
+    android:textSize="16sp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    android:text="最新的影片"
+    android:textAlignment="center"
+    />
+
+
+<View
+    android:id="@+id/dividerInVideoView"
+    android:layout_width="0dp"
+    android:layout_height="1dp"
+    android:background="@color/divider"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/videoTextTextView"
+    />
+
+    <VideoView
+        android:id="@+id/myvideoview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dividerInVideoView"/>
+
+<!--<ScrollView-->
+    <!--android:id="@+id/videoInScrollView"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dp"-->
+    <!--app:layout_constraintBottom_toTopOf="@+id/save"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/dividerInVideoView"-->
+    <!--&gt;-->
+
+
+
+<!--</ScrollView>-->
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/save"
+
+        >
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:text="上傳"
+            android:textAllCaps="false"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            android:background="@color/brown"
+            style="@style/Widget.AppCompat.Button.Colored"
+            />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
+
+
+
+
