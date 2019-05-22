@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.projection.MediaProjection;
@@ -20,7 +21,6 @@ import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -29,7 +29,6 @@ import java.io.File;
 import java.util.Date;
 
 import labelingStudy.nctu.minuku.DBHelper.appDatabase;
-import labelingStudy.nctu.minuku.R;
 import labelingStudy.nctu.minuku.config.Constants;
 import labelingStudy.nctu.minuku.model.DataRecord.VideoDataRecord;
 
@@ -46,30 +45,39 @@ import static labelingStudy.nctu.minuku.config.SharedVariables.visitedApp;
 public class BackgroundScreeenRecorderActivity extends Activity{
     private static final int REQUEST_CODE = 1;
     private MediaProjectionManager mMediaProjectionManager;
-    private BackgroundScreenRecorderService mRecorder;
+    public  BackgroundScreenRecorderService mRecorder;
     private static final int RECORD_REQUEST_CODE = 1;
     private WindowManager mWindowManager;
     private View mOverlayView;
-    VideoDataRecord videoDataRecord;
-    appDatabase db;
+    private VideoDataRecord videoDataRecord;
+    private appDatabase db;
+    private SharedPreferences sharedPrefs;
 
+    @SuppressLint("LongLogTag")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mOverlayView = LayoutInflater.from(this).inflate(R.layout.transparent, null);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(START_RECORDING);
-        filter.addAction(STOP_RECORDING);
-        LocalBroadcastManager.getInstance(this).registerReceiver(Recording,filter);
-        //noinspection ResourceType
-        mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
-        startActivityForResult(captureIntent, REQUEST_CODE);
-        db = appDatabase.getDatabase(getApplicationContext());
+            super.onCreate(savedInstanceState);
+            //mOverlayView = LayoutInflater.from(this).inflate(R.layout.transparent, null);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(START_RECORDING);
+            filter.addAction(STOP_RECORDING);
+            LocalBroadcastManager.getInstance(this).registerReceiver(Recording, filter);
+            //noinspection ResourceType
+            mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+            Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
+            Log.d("FloatingActionButtonService", "start activity for result");
+            startActivityForResult(captureIntent, REQUEST_CODE);
+            db = appDatabase.getDatabase(getApplicationContext());
+            Log.d("checkRecorderLifeCycle","START_RECORDING");
+            Log.d("checkRecorderLifeCycle","on create");
+
 
     }
 
+
+
+    @SuppressLint("LongLogTag")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -78,6 +86,7 @@ public class BackgroundScreeenRecorderActivity extends Activity{
             if (data != null)
                 mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, (Intent) data.clone());
             if (mediaProjection == null) {
+               // Log.d("FloatingActionButtonService", "media projection is null");
                 Log.e("@@", "media projection is null");
                 return;
             }
@@ -110,51 +119,26 @@ public class BackgroundScreeenRecorderActivity extends Activity{
             toast.setView(view);
             toast.show();
             moveTaskToBack(true);
+            Log.d("checkRecorderLifeCycle","onActivityResult");
+            ifRecorderNull();
         }
 
     }
-//
-//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//    @Override
-//    public void onClick(View v) {
-//        if (mRecorder != null) {
-//            mRecorder.quit();
-//            mRecorder = null;
-//            mButton.setText("Restart recorder");
-//            finish();
-//        } else {
-//            Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
-//            startActivityForResult(captureIntent, REQUEST_CODE);
-//        }
-//    }
-//    private final BroadcastReceiver stopRecording = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if (mRecorder != null) {
-//                mRecorder.quit();
-//                mRecorder = null;
-////                mButton.setText("Restart recorder");
-//                finish();
-//            }
-//        }
-//    };
 
-    // for recording
     private BroadcastReceiver Recording = new BroadcastReceiver() {
 
         @SuppressLint("LongLogTag")
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("checkBroadcast","in on receive");
-            Log.d("checkBroadcast","intent :"+intent.getAction().toString());
+            Log.d("FloatingActionButtonService","in on receive");
+            Log.d("FloatingActionButtonService","intent :"+intent.getAction().toString());
 
             if(intent.getAction().equals(STOP_RECORDING)){
                 Log.d("FloatingActionButtonService","stop in activty ");
                 if (mRecorder != null) {
                     mRecorder.quit();
                     mRecorder = null;
-
                     // save to video data record
                     videoDataRecord.setEndTime(getReadableTime(new Date().getTime()));
                     db.videoDataRecordDao().insertAll(videoDataRecord);
@@ -166,7 +150,6 @@ public class BackgroundScreeenRecorderActivity extends Activity{
                     toast.show();
                     ifRecordingRightNow = false;
                     finish();
-
                 }
 
             } else if(intent.getAction().equals(START_RECORDING)){
@@ -181,15 +164,41 @@ public class BackgroundScreeenRecorderActivity extends Activity{
     };
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("checkRecorderLifeCycle","onResume");
+        ifRecorderNull();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("checkRecorderLifeCycle","onPause");
+        ifRecorderNull();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("checkRecorderLifeCycle","onStop");
+        ifRecorderNull();
+    }
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(Recording);
-//        if(mRecorder != null){
-//            mRecorder.quit();
-//            mRecorder = null;
-//        }
-//        if (mOverlayView != null)
-//            mWindowManager.removeView(mOverlayView);
+        Log.d("checkRecorderLifeCycle","onDestroy");
+        ifRecorderNull();
+       // sharedPrefs.edit().putBoolean("firstTimeRecord",false).commit();
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(Recording);
+        //ifRecorderNull();
+
+    }
+    void ifRecorderNull(){
+        if(mRecorder!=null){
+            Log.d("checkRecorderLifeCycle","notNull");
+        }else{
+            Log.d("checkRecorderLifeCycle","null");
+        }
     }
 
 }

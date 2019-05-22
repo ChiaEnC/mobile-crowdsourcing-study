@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -44,6 +43,9 @@ import static labelingStudy.nctu.minuku.config.Constants.Have_clicked;
 import static labelingStudy.nctu.minuku.config.Constants.Noti;
 import static labelingStudy.nctu.minuku.config.Constants.Pull_down_noti_shade;
 import static labelingStudy.nctu.minuku.config.Constants.QUESTIONNAIRE_TITLE_MC;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_ONGOING_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_STOP_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_TITLE_CONTENT;
 import static labelingStudy.nctu.minuku.config.Constants.STOP_RECORDING;
 import static labelingStudy.nctu.minuku.config.SharedVariables.NSHasPulledDown;
 import static labelingStudy.nctu.minuku.config.SharedVariables.canSentNotiMC;
@@ -56,6 +58,7 @@ import static labelingStudy.nctu.minuku.config.SharedVariables.ifUserStop;
 import static labelingStudy.nctu.minuku.config.SharedVariables.map;
 import static labelingStudy.nctu.minuku.config.SharedVariables.nhandle_or_dismiss;
 import static labelingStudy.nctu.minuku.config.SharedVariables.pullcontent;
+import static labelingStudy.nctu.minuku.config.SharedVariables.recordNotificationChanging;
 import static labelingStudy.nctu.minuku.config.SharedVariables.relatedId;
 import static labelingStudy.nctu.minuku.config.SharedVariables.visitedApp;
 import static labelingStudy.nctu.minuku.service.MobileCrowdsourceRecognitionService.clearBlackList;
@@ -294,6 +297,8 @@ public class MobileAccessibilityService extends AccessibilityService {
 //        }
 //    }
 
+
+
     @SuppressLint({"NewApi", "LongLogTag"})
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void enterMobileCrowdsourceApp(int packCode){
@@ -301,6 +306,9 @@ public class MobileAccessibilityService extends AccessibilityService {
 
         if (enter_app_time == 0) {
             clearAllData();
+            if(!notificationListenService.checkRecordingNotiExist(this)){
+                notificationListenService.startRecordingNotification(this,200);
+            }
             Log.d("enterLeave","enterMobileCrowdsourceAppFirst");
             if (packCode == 4) visitedApp = map;
             else if (packCode == 5) visitedApp = crowdsource;
@@ -322,16 +330,27 @@ public class MobileAccessibilityService extends AccessibilityService {
 //                triggerNotificationsForReminding();
            // runforOnce = true;
             // rep.startRepeatingTask();
-            if(!ifRecordingRightNow) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
-                    intent = new Intent(this, FloatingActionButtonService.class);
-                    Log.d("FloatingActionButtonService", "in access to check floating");
-                    intent.putExtra("floating_appear", true);
-                    startService(intent);
-                }
-            }
+//            if(!ifRecordingRightNow) {
+//                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
+//                    intent = new Intent(this, FloatingActionButtonService.class);
+//                    Log.d("FloatingActionButtonService", "in access to check floating");
+//                    intent.putExtra("floating_appear", true);
+//                    startService(intent);
+//                    //TODO start notification
+//
+//                }
+//            }
             enterFlag = true;
         }
+        if(ifRecordingRightNow && (notificationListenService.ifRecordingTransit(this,RECORDING_TITLE_CONTENT)
+                || notificationListenService.ifRecordingTransit(this,RECORDING_STOP_CONTENT) )){
+            notificationListenService.updateRecordingNotification(this,200);
+        }
+        if(enter_app_time!=0 && !ifRecordingRightNow && notificationListenService.ifRecordingTransit(this,RECORDING_ONGOING_CONTENT)){
+            notificationListenService.stopRecordingNotification(this,200);
+        }
+
+
         AccessibilityNodeInfo source = getRootInActiveWindow();
         if(source!=null){
             logViewHierarchy(source,0);
@@ -356,33 +375,29 @@ public class MobileAccessibilityService extends AccessibilityService {
          /* check Connection*/
 
         if ((visitedApp.equals(map)) || (visitedApp.equals(crowdsource))) {
-            Boolean prepare_to_record = (!(ifRecordingRightNow||ifUserStop))&&(ifClickedFAB);
+           // Boolean prepare_to_record = (!(ifRecordingRightNow));  //&&(ifClickedFAB)
 
-            // 停止錄影
-            if(ifRecordingRightNow){
-                stopRecording();
-            }
             //  非開始錄影
-            if(!prepare_to_record){
-                 if(is_mobile_crowdsource_task){
-                     Log.d("enterLeave","leaveMobileCrowdsourceApp___IsMC");
-                     Log.d(TAG2, "is mc true");
-                     if (leave_app_time == 0)
-                         leave_app_time = System.currentTimeMillis() ;
-                     storeMCrecord(visitedApp, app_from_noti, enter_app_time, leave_app_time);
-                 }
-                if(canSentNotiMC) {
-                    if(!notificationListenService.checkOtherNotiExist(this)) {
-                        notificationListenService.createNotification(this,visitedApp, enter_app_time, 0, 100, QUESTIONNAIRE_TITLE_MC);
-                        // triggerNotifications(visitedApp,enter_app_time , 0);
-                        canSentNotiMC = false;
-                    }
+
+             if(is_mobile_crowdsource_task){
+                 Log.d("enterLeave","leaveMobileCrowdsourceApp___IsMC");
+                 Log.d(TAG2, "is mc true");
+                 if (leave_app_time == 0)
+                     leave_app_time = System.currentTimeMillis() ;
+                 storeMCrecord(visitedApp, app_from_noti, enter_app_time, leave_app_time);
+             }
+            if(canSentNotiMC) {
+                if(!notificationListenService.checkOtherNotiExist(this)) {
+                    notificationListenService.createNotification(this,visitedApp, enter_app_time, 0, 100, QUESTIONNAIRE_TITLE_MC);
+                    // triggerNotifications(visitedApp,enter_app_time , 0);
+                    canSentNotiMC = false;
                 }
-                if(intent!=null)
-                    stopService(intent);
-                //relatedId++;
-                clearAllData();
             }
+//                if(intent!=null)
+//                    stopService(intent);
+            //relatedId++;
+            clearAllData();
+
 
             //
 
@@ -466,6 +481,11 @@ public class MobileAccessibilityService extends AccessibilityService {
 //            }
 
         }
+        if(ifRecordingRightNow){
+            stopRecording();
+        }
+        notificationListenService.cancelRecordNotiPendingIntent(this);
+        notificationListenService.cancelNotification(this,200);
     }
     public void clearAllData(){
         // 清除資料
@@ -490,7 +510,7 @@ public class MobileAccessibilityService extends AccessibilityService {
         String text = "";
         String type = "";
         String extra = "";
-        checkConnection("enterOtherTargetApp",packCode);
+        //checkConnection("enterOtherTargetApp",packCode);
 
         Log.d("checkNonMobile","enterOtherTargetApp : "+packCode);
         if (packCode == 3 ||packCode == 10 ||packCode == 11||packCode == 12||packCode == 14||packCode == 15||packCode == 1) {  // target other kinds of app 10 gmail 11 instagram
@@ -996,7 +1016,10 @@ public class MobileAccessibilityService extends AccessibilityService {
                     //Do something after 100ms
                     if ((packCode != 4) && (packCode != 5)) {
                         Log.d(TAG2, "is_mobile_c_task : " + is_mobile_crowdsource_task);
-                        leaveMobileCrowdsourceApp();
+                        if(!recordNotificationChanging)
+                            leaveMobileCrowdsourceApp();
+                        else
+                            recordNotificationChanging = false;
                         Log.d("countDownTimer ", "packCode not 4 5 : " + packCode);
                     }
                     Log.d("countDownTimer ", "packCode test: " + packCode);
@@ -1103,7 +1126,7 @@ public class MobileAccessibilityService extends AccessibilityService {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            CSVHelper.storeToCSV("CheckStoreMC.csv",object.toString());
+            CSVHelper.storeToCSV("MC_record.csv",object.toString());
             mobileCrowdsourceStreamGenerator.setMCDataRecord(mApp,ifClickNoti,mstartTasktime,mendTasktime,finalaction,relatedId);
             mobileCrowdsourceStreamGenerator.updateStream();
             lastTimeContentAction = finalaction;
@@ -1436,15 +1459,14 @@ public class MobileAccessibilityService extends AccessibilityService {
 //        Toast.makeText(this,"startRecording",Toast.LENGTH_LONG);
 //
 //    }
+
     public void stopRecording(){
 
         Intent broadCastIntent = new Intent();
         broadCastIntent.setAction(STOP_RECORDING);
-//        sendBroadcast(broadCastIntent);
-        Log.d("checkBroadcast","stopRecording");
-
         Toast.makeText(this,"stopRecording",Toast.LENGTH_LONG);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadCastIntent);
+
     }
 
 //    private CharSequence getWindowTitleFromEvent(

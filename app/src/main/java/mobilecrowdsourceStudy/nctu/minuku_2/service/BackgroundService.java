@@ -593,18 +593,18 @@ public class BackgroundService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
+        //CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
 
         if(resetFire){
-            CSVHelper.storeToCSV("CheckAlarm.csv","reset ready to set next time");
+           // CSVHelper.storeToCSV("CheckAlarm.csv","reset ready to set next time");
             setResetAlarm(context);
         }else {
             if (resetAlarmUp) {
                 Log.d("AlarmHelper", "Alarm reset is already active");
-                CSVHelper.storeToCSV("CheckAlarm.csv","Alarm reset is already active");
+              //  CSVHelper.storeToCSV("CheckAlarm.csv","Alarm reset is already active");
             } else {
                 setResetAlarm(context);
-                Log.d("AlarmHelper", "Reset set ");
+               // Log.d("AlarmHelper", "Reset set ");
             }
         }
 
@@ -617,15 +617,15 @@ public class BackgroundService extends Service {
         boolean randomAlarmUp = (PendingIntent.getBroadcast(context, 25,checkIfRandomAlarmIntent,
                 PendingIntent.FLAG_NO_CREATE) != null);
 
-        JSONObject object = new JSONObject();
-
-        try {
-            object.put("check_alarm_receiver_random ", SharedVariables.getReadableTime(new Date().getTime()));
-            object.put("random_is_up ", randomAlarmUp);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
+//        JSONObject object = new JSONObject();
+//
+//        try {
+//            object.put("check_alarm_receiver_random ", SharedVariables.getReadableTime(new Date().getTime()));
+//            object.put("random_is_up ", randomAlarmUp);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+       // CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
 
 //        if(resetFire){
 //            CSVHelper.storeToCSV("CheckAlarm.csv","reset ready to set next time");
@@ -633,10 +633,10 @@ public class BackgroundService extends Service {
 //        }else {
         if (randomAlarmUp) {
             Log.d("AlarmHelper", "Alarm random is already active");
-            CSVHelper.storeToCSV("CheckAlarm.csv","Alarm random is already active");
+           // CSVHelper.storeToCSV("CheckAlarm.csv","Alarm random is already active");
         } else {
             setRandomAlarm(context);
-            CSVHelper.storeToCSV("CheckAlarm.csv","nextTimeAlarmNumber : "+ nextTimeRadomAlarmNumber);
+           // CSVHelper.storeToCSV("CheckAlarm.csv","nextTimeAlarmNumber : "+ nextTimeRadomAlarmNumber);
             Log.d("AlarmHelper", "random set ");
         }
        // }
@@ -657,26 +657,26 @@ public class BackgroundService extends Service {
                     PendingIntent.FLAG_NO_CREATE) != null);
 
             // 紀錄何時check survey
-            JSONObject object = new JSONObject();
-
-            try {
-                object.put("check_alarm_receiver_survey ", SharedVariables.getReadableTime(new Date().getTime()));
-                object.put("survey_number ", 11 + i);
-                object.put("survey_is_up ", alarmUp);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            CSVHelper.storeToCSV("CheckAlarm.csv", object.toString());
+//            JSONObject object = new JSONObject();
+//
+//            try {
+//                object.put("check_alarm_receiver_survey ", SharedVariables.getReadableTime(new Date().getTime()));
+//                object.put("survey_number ", 11 + i);
+//                object.put("survey_is_up ", alarmUp);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+           // CSVHelper.storeToCSV("CheckAlarm.csv", object.toString());
 
 
             Boolean surveyFire = targetFire(i);
             if (surveyFire) {
-                CSVHelper.storeToCSV("CheckAlarm.csv", "survey " + i + "ready to set next time");
+               // CSVHelper.storeToCSV("CheckAlarm.csv", "survey " + i + "ready to set next time");
                 setSurveyAlarm(context, i + 11);
             } else {
                 if (alarmUp) {
                     Log.d("AlarmHelper", "Alarm survey " + i + "is already active");
-                    CSVHelper.storeToCSV("CheckAlarm.csv", "Alarm survey " + (i + 11) + "is already active");
+                   // CSVHelper.storeToCSV("CheckAlarm.csv", "Alarm survey " + (i + 11) + "is already active");
                 } else {
                     setSurveyAlarm(context, i + 11);  // 0+11 1+11 2+11 3+11 4+11 5+11 6+11 7+11
                     Log.d("AlarmHelper", "Survey set " + (i + 11));
@@ -824,7 +824,7 @@ public class BackgroundService extends Service {
         if (when.compareTo(currentTime) <= 0) {
             when.add(Calendar.DATE, 1);
             resetFire = false;
-            CSVHelper.storeToCSV("CheckAlarm.csv","*** reset set next time "+sdf.format(when.getTime()));
+           // CSVHelper.storeToCSV("CheckAlarm.csv","*** reset set next time "+sdf.format(when.getTime()));
         }
 
         setAlarm(context,when,10,RESET);
@@ -845,8 +845,8 @@ public class BackgroundService extends Service {
         if (when.compareTo(currentTime) <= 0) {
             when.add(Calendar.DATE, 1);
             setTargetFire(alarmNumber-11);
-            CSVHelper.storeToCSV("CheckAlarm.csv","*** survey set "+alarmNumber);
-            CSVHelper.storeToCSV("CheckAlarm.csv","*** survey set next time "+sdf.format(when.getTime()));
+//            CSVHelper.storeToCSV("CheckAlarm.csv","*** survey set "+alarmNumber);
+//            CSVHelper.storeToCSV("CheckAlarm.csv","*** survey set next time "+sdf.format(when.getTime()));
         }
 
         setAlarm(context, when, alarmNumber, SURVEYALARM); // 11 12 13 14 15 16 17 18
@@ -868,17 +868,17 @@ public class BackgroundService extends Service {
         Log.d(TAG,"action : "+action);
         Log.d(TAG,"requestCode  : "+requestCode);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        JSONObject object = new JSONObject();
-        try {
-            object.put("setAlarm",action);
-            object.put("when",sdf.format(when.getTime()));
-            object.put("requestCode",requestCode).toString();
+//        JSONObject object = new JSONObject();
+//        try {
+//            object.put("setAlarm",action);
+//            object.put("when",sdf.format(when.getTime()));
+//            object.put("requestCode",requestCode).toString();
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
+       // CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)

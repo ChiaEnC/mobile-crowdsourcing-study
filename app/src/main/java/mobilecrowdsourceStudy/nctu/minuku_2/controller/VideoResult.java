@@ -221,7 +221,7 @@ public class VideoResult extends AppCompatActivity {
                         Log.d(TAG, "files : " + files);
                         Log.d(TAG, "deviceId : " + deviceId);
                         Log.d(TAG, "fileName : " + fileName);
-
+                        Log.d(TAG,"URL_SAVE_VIDEO : "+URL_SAVE_VIDEO);
                     }
                     Log.d(TAG,"update DeviceId : "+deviceId);
                     if (Constants.DEVICE_ID.equals(deviceId)) {

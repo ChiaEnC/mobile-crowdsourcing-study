@@ -13,10 +13,6 @@ import android.os.Environment;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Calendar;
@@ -26,7 +22,6 @@ import java.util.Random;
 import labelingStudy.nctu.minuku.DBHelper.appDatabase;
 import labelingStudy.nctu.minuku.Utilities.CSVHelper;
 import labelingStudy.nctu.minuku.config.Constants;
-import labelingStudy.nctu.minuku.config.SharedVariables;
 import labelingStudy.nctu.minuku.service.NotificationListenService;
 
 import static labelingStudy.nctu.minuku.config.Constants.QUESTIONNAIRE_TITLE_RANDOM_NOTI;
@@ -101,15 +96,15 @@ public class AlarmReceiver extends BroadcastReceiver {
             // 整點叫你
     //        AudioManager am = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
     //        am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            Toast.makeText(context,"整點歸零 delete all sync data",Toast.LENGTH_LONG).show();
-            JSONObject object = new JSONObject();
-
-             try {
-                 object.put("resetReceive", SharedVariables.getReadableTime(new Date().getTime()));
-             } catch (JSONException e) {
-                 e.printStackTrace();
-             }
-             CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
+//            Toast.makeText(context,"整點歸零 delete all sync data",Toast.LENGTH_LONG).show();
+//            JSONObject object = new JSONObject();
+//
+//             try {
+//                 object.put("resetReceive", SharedVariables.getReadableTime(new Date().getTime()));
+//             } catch (JSONException e) {
+//                 e.printStackTrace();
+//             }
+//             CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
              resetFire = true;
 
         }else if(action.equals(SURVEYALARM)){
@@ -120,51 +115,51 @@ public class AlarmReceiver extends BroadcastReceiver {
              pullcontent.clear();
 
 
-             Toast.makeText(context,"可送noti",Toast.LENGTH_LONG).show();
-             JSONObject object = new JSONObject();
+             //Toast.makeText(context,"可送noti",Toast.LENGTH_LONG).show();
+            // JSONObject object = new JSONObject();
 
-             try {
-                 object.put("surveyReceive",SharedVariables.getReadableTime(new Date().getTime()));
-             } catch (JSONException e) {
-                 e.printStackTrace();
-             }
-             CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
+//             try {
+//                 object.put("surveyReceive",SharedVariables.getReadableTime(new Date().getTime()));
+//             } catch (JSONException e) {
+//                 e.printStackTrace();
+//             }
+//             CSVHelper.storeToCSV("CheckAlarm.csv",object.toString());
              if(alarmNumber%2==0){
                  canSentNoti = true;
              }
              if(alarmNumber == 0){
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey1Fire set true");
+                // CSVHelper.storeToCSV("CheckAlarm.csv","survey1Fire set true");
                  survey1Fire = true;
              }else if(alarmNumber == 1){
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey2Fire set true");
+                // CSVHelper.storeToCSV("CheckAlarm.csv","survey2Fire set true");
                  survey2Fire = true ;
              }else if(alarmNumber == 2){
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey3Fire set true");
+                // CSVHelper.storeToCSV("CheckAlarm.csv","survey3Fire set true");
                  survey3Fire = true;
              }else if(alarmNumber == 3){
                  survey4Fire = true;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey4Fire set true");
+               //  CSVHelper.storeToCSV("CheckAlarm.csv","survey4Fire set true");
              }else if(alarmNumber == 4){
                  survey5Fire = true;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey5Fire set true");
+               //  CSVHelper.storeToCSV("CheckAlarm.csv","survey5Fire set true");
              }else if(alarmNumber == 5){
                  survey6Fire = true;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey6Fire set true");
+               //  CSVHelper.storeToCSV("CheckAlarm.csv","survey6Fire set true");
              }else if(alarmNumber == 6){
                  survey7Fire = true;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey7Fire set true");
+              //   CSVHelper.storeToCSV("CheckAlarm.csv","survey7Fire set true");
              }else if(alarmNumber == 7){
                  survey8Fire = true;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
+               //  CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
              }else if(alarmNumber == 8){
                  survey9Fire = true ;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
+                // CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
              }else if(alarmNumber == 9){
                  survey10Fire = true;
                  canSentNoti = false;
                  canSentNotiMC = false;
                  canSentNotiMCNoti = false;
-                 CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
+             //    CSVHelper.storeToCSV("CheckAlarm.csv","survey8Fire set true");
              }
 //             else if(alarmNumber == 10){
 ////                 survey11Fire = true;
@@ -173,9 +168,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 //                 CSVHelper.storeToCSV("randomAlarm.csv","receive content"+notiPackForRandom +" "+ notiPostedTimeForRandom + " "+notiTitleForRandom+" "+notiTextForRandom);
 //
 //             }
-             else{
-                 CSVHelper.storeToCSV("CheckAlarm.csv","alarm receive wrong number");
-             }
+//             else{
+//                 CSVHelper.storeToCSV("CheckAlarm.csv","alarm receive wrong number");
+//             }
              if(alarmNumber>=0 && alarmNumber<9){
                  createRandomAlarm(context,alarmNumber);
              }
@@ -200,7 +195,16 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     public void  cancelNotification(Context context,int noti_id){
-        CSVHelper.storeToCSV("wipeNoti.csv","receive delete alarm : "+noti_id+" "+getReadableTime(new Date().getTime()));
+        CSVHelper.storeToCSV("wipeNoti.csv","receive delete alarm : "+getReadableTime(new Date().getTime()));
+        if(noti_id == 100){
+
+        }else if(noti_id == 101){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv","receive delete alarm : "+getReadableTime(new Date().getTime()));
+        }else if(noti_id == 102){
+            CSVHelper.storeToCSV("randomAlarm.csv","receive delete alarm : "+getReadableTime(new Date().getTime()));
+        }
+
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         StatusBarNotification[] notifications =
                 new StatusBarNotification[0];
@@ -210,12 +214,24 @@ public class AlarmReceiver extends BroadcastReceiver {
         for (StatusBarNotification notification : notifications) {
             if (notification.getId() == noti_id) {
                 notificationManager.cancel(noti_id);
-                CSVHelper.storeToCSV("wipeNoti.csv","find and delete alarm : "+noti_id);
+                if(noti_id == 100){
+
+                }else if(noti_id == 101){
+                    CSVHelper.storeToCSV("MCNoti_cancel.csv","find and delete alarm");
+                }else if(noti_id == 102){
+                    CSVHelper.storeToCSV("randomAlarm.csv","find and delete alarm");
+                }
                 // Do something.
                 return;
             }
         }
-        CSVHelper.storeToCSV("wipeNoti.csv","alarm not found : "+noti_id);
+        if(noti_id == 100){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv","alarm not found");
+        }else if(noti_id == 101){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv","alarm not found");
+        }else if(noti_id == 102){
+            CSVHelper.storeToCSV("randomAlarm.csv","alarm not found");
+        }
 
     }
 
@@ -433,15 +449,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         when.setTimeInMillis(System.currentTimeMillis());
 
 
-        when.set(Calendar.HOUR_OF_DAY,(hour[alarmNumber]+target_hour));  // (8+0*2)8 (8+1*2)10 (8+2*2)12 (8+3*2)14 (8+4*2)16 (8+5*2)18 (8+6*2)10 (8+7*2)22
+        when.set(Calendar.HOUR_OF_DAY,target_hour);  // (8+0*2)8 (8+1*2)10 (8+2*2)12 (8+3*2)14 (8+4*2)16 (8+5*2)18 (8+6*2)10 (8+7*2)22
         when.set(Calendar.MINUTE, target_minute);
         when.set(Calendar.SECOND, 0);
         when.set(Calendar.MILLISECOND, 0);
         CSVHelper.storeToCSV("randomAlarm.csv","random "+random);
-        CSVHelper.storeToCSV("randomAlarm.csv","receive now hour "+hour[alarmNumber]);
-        CSVHelper.storeToCSV("randomAlarm.csv","receive now min "+min[alarmNumber]);
-        CSVHelper.storeToCSV("randomAlarm.csv","receive Random hour "+(target_hour));
-        CSVHelper.storeToCSV("randomAlarm.csv","receive Random min "+(target_minute));
+        CSVHelper.storeToCSV("randomAlarm.csv","now hour "+hour[alarmNumber]);
+        CSVHelper.storeToCSV("randomAlarm.csv","now min "+min[alarmNumber]);
+        CSVHelper.storeToCSV("randomAlarm.csv","new Random hour "+(target_hour));
+        CSVHelper.storeToCSV("randomAlarm.csv","new Random min "+(target_minute));
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
@@ -492,10 +508,10 @@ public class AlarmReceiver extends BroadcastReceiver {
                 boolean deleted = file.delete();
                 if(deleted){
                     Log.d("AlarmHelper", "fileName : "+ fileName +"has been deleted");
-                    CSVHelper.storeToCSV("CheckAlarm.csv","fileName : "+ fileName +"has been deleted");
+                    CSVHelper.storeToCSV("FileDelete.csv","fileName : "+ fileName +"has been deleted");
                 }else{
                     Log.d(TAG,"file: "+fileName+" has not been deleted");
-                    CSVHelper.storeToCSV("CheckAlarm.csv","fileName : "+ fileName +"has not been deleted");
+                    CSVHelper.storeToCSV("FileDelete.csv","fileName : "+ fileName +"has not been deleted");
                 }
                 transCursor.moveToNext();
             }

@@ -58,6 +58,7 @@ public class NetworkStateChecker extends BroadcastReceiver {
     Long lastSentHour;
     Long currentHour;
     Long nowSentHour;
+    boolean flag = true;
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -82,6 +83,7 @@ public class NetworkStateChecker extends BroadcastReceiver {
 
             }
         }
+
     }
 
     /*
@@ -620,7 +622,11 @@ public class NetworkStateChecker extends BroadcastReceiver {
             // error handling
             if(nowSentHour/1000000L>0) {
                 nowSentHour = lastSentHour + 1;
-                nowSentHour = nowSentHour % 100 >= 24 ? currentHour : nowSentHour;
+                if(nowSentHour%100 == 24){
+                    if(currentHour>nowSentHour){
+                        nowSentHour = (currentHour/100)*100;
+                    }
+                }
             }else{
                 nowSentHour = currentHour;
             }

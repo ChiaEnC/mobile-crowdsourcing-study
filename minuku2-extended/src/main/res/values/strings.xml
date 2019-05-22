@@ -22,7 +22,6 @@
 
 <resources>
     <string name="app_name">MobileCrowdsourceDetector</string>
-
     <!--  current_task: PART ESM CAR  -->
     <string name="current_task">ESM</string>
 </resources>

@@ -81,7 +81,7 @@ public class Constants {
     public static final String ANNOTATION_TAG_DETECTED_TRANSPORTATION_ACTIVITY = "detected-transportation";
     public static final String ANNOTATION_TAG_DETECTED_SITENAME = "detected-sitename";
     public static final String ANNOTATION_TAG_DETECTED_SITELOCATION = "detected-sitelocation";
-//
+    //
     public static final String ANNOTATION_Label_SITELOCATION = "SiteLocation";
     public static final String ANNOTATION_Label_TIME = "LabeledTime";
 
@@ -138,6 +138,8 @@ public class Constants {
 
     public static final String STOP_RECORDING = "STOP_RECORDING";
     public static final String START_RECORDING = "START_RECORDING";
+    public static final String STOP = "STOP";
+    public static final String DELETE = "DELETE";
 
     // Provider stuff
     public static final String GOOGLE_AUTH_PROVIDER = "google";
@@ -190,7 +192,15 @@ public class Constants {
     public static final int SENSOR_QUEUE_SIZE = 20;
 
     public static final String ONGOING_CHANNEL_ID = "mobile_crowdsource_id";
+    public static final String RECORDING_NOTIFICATION_ID = "RECORDING_NOTIFICATION_ID";
     public static final String QUESTIONNAIRE_CHANNEL_ID = "questionnaire_channel";
+    public static final String RECORDING_TITLE_CONTENT = "按下按鈕並開始錄製";
+    public static final String RECORDING_ONGOING_CONTENT = "正在錄製";
+    public static final String RECORDING_STOP_CONTENT = "錄製已停止";
+    public static final String RECORDING_TITLE = "錄製畫面";
+    public static final String RECORDING_NOW = "開始錄製";
+    public static final String STOPRECORDING = "停止錄製";
+    public static final String CANCELRECORDING = "刪除通知";
     public static final String QUESTIONNAIRE_TITLE_CONTENT = "您將貢獻新資料";
     public static final String QUESTIONNAIRE_TITLE_MC = "請填寫問卷 - 是否完成群眾外包工作";
     public static final String QUESTIONNAIRE_TITLE_RANDOM_NOTI = "請填寫問卷 - 是否看到通知";
@@ -278,9 +288,9 @@ public class Constants {
     public static String Have_clicked = "當時曾點擊";
     // for sync server
     public static final String DATA_SAVED_BROADCAST = "data.sync";
-    public static final String URL_SAVE_DUMP = "http://13.58.134.191/";
-    public static final String URL_SAVE_USER = "http://13.58.134.191/user";
-    public static final String URL_SAVE_VIDEO = "http://13.58.134.191:3000/";
+    public static final String URL_SAVE_DUMP = "http://18.220.76.0/";
+    public static final String URL_SAVE_USER = "http://18.220.76.0/user";
+    public static final String URL_SAVE_VIDEO = "http://18.220.76.0:3000/upload";
 
     //1 means data is synced and 0 means data is not synced
     public static final int DATA_SYNCED_WITH_SERVER = 1;

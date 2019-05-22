@@ -36,12 +36,24 @@ import labelingStudy.nctu.minuku.manager.MinukuStreamManager;
 import labelingStudy.nctu.minuku.model.DataRecord.NotificationDataRecord;
 import labelingStudy.nctu.minuku.model.DataRecord.ResponseDataRecord;
 import labelingStudy.nctu.minuku.receiver.AlarmReceiver;
+import labelingStudy.nctu.minuku.receiver.StopRecordingReceiver;
 import labelingStudy.nctu.minuku.streamgenerator.NotificationStreamGenerator;
 import labelingStudy.nctu.minukucore.exception.StreamNotFoundException;
 
+import static labelingStudy.nctu.minuku.config.Constants.CANCELRECORDING;
 import static labelingStudy.nctu.minuku.config.Constants.Content;
+import static labelingStudy.nctu.minuku.config.Constants.DELETE;
 import static labelingStudy.nctu.minuku.config.Constants.QUESTIONNAIRE_CHANNEL_ID;
 import static labelingStudy.nctu.minuku.config.Constants.QUESTIONNAIRE_TITLE_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_NOTIFICATION_ID;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_NOW;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_ONGOING_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_STOP_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_TITLE;
+import static labelingStudy.nctu.minuku.config.Constants.RECORDING_TITLE_CONTENT;
+import static labelingStudy.nctu.minuku.config.Constants.START_RECORDING;
+import static labelingStudy.nctu.minuku.config.Constants.STOP;
+import static labelingStudy.nctu.minuku.config.Constants.STOPRECORDING;
 import static labelingStudy.nctu.minuku.config.SharedVariables.NotiInfoForQ;
 import static labelingStudy.nctu.minuku.config.SharedVariables.SURVEYDELETEALARM;
 import static labelingStudy.nctu.minuku.config.SharedVariables.appNameForQ;
@@ -50,9 +62,8 @@ import static labelingStudy.nctu.minuku.config.SharedVariables.canSentNotiMC;
 import static labelingStudy.nctu.minuku.config.SharedVariables.canSentNotiMCNoti;
 import static labelingStudy.nctu.minuku.config.SharedVariables.extraForQ;
 import static labelingStudy.nctu.minuku.config.SharedVariables.getReadableTime;
-import static labelingStudy.nctu.minuku.config.SharedVariables.hour;
 import static labelingStudy.nctu.minuku.config.SharedVariables.ifClickedNoti;
-import static labelingStudy.nctu.minuku.config.SharedVariables.min;
+import static labelingStudy.nctu.minuku.config.SharedVariables.ifRecordingRightNow;
 import static labelingStudy.nctu.minuku.config.SharedVariables.nhandle_or_dismiss;
 import static labelingStudy.nctu.minuku.config.SharedVariables.notiPack;
 import static labelingStudy.nctu.minuku.config.SharedVariables.notiPackForRandom;
@@ -65,6 +76,7 @@ import static labelingStudy.nctu.minuku.config.SharedVariables.notiTickerText;
 import static labelingStudy.nctu.minuku.config.SharedVariables.notiTitle;
 import static labelingStudy.nctu.minuku.config.SharedVariables.notiTitleForRandom;
 import static labelingStudy.nctu.minuku.config.SharedVariables.questionaireType;
+import static labelingStudy.nctu.minuku.config.SharedVariables.recordNotificationChanging;
 import static labelingStudy.nctu.minuku.config.SharedVariables.relatedId;
 import static labelingStudy.nctu.minuku.config.SharedVariables.timeForQ;
 import static labelingStudy.nctu.minuku.service.MobileAccessibilityService.enterFlag;
@@ -80,7 +92,7 @@ import static labelingStudy.nctu.minuku.service.MobileCrowdsourceRecognitionServ
 public class NotificationListenService extends NotificationListenerService {
     private static final String TAG = "NotificationListener";
 
-    private NotificationManager mManager;
+    //private NotificationManager mManager;
     //    private String deviceId;
     private String title;
     private String text;
@@ -97,6 +109,8 @@ public class NotificationListenService extends NotificationListenerService {
     int noti_id;
     public int requestCode = 123;
     private ArrayList<String> haveSentMCNoti = new ArrayList<>();
+
+
     //    private String app;
 //    private Boolean send_form;
 //    private String  last_title;
@@ -276,10 +290,10 @@ public class NotificationListenService extends NotificationListenerService {
                             if ((now - s.getPostTime() > 15 * 1000 * 60) && (now - s.getPostTime() < 30 * 1000 * 60)) {
 
                                 if (!haveSentMCNoti.contains(label)) {
-                                    CSVHelper.storeToCSV("wipeNoti.csv", "Over15minutes : " + getReadableTime(s.getPostTime()));
+                                    CSVHelper.storeToCSV("MCNoti_cancel.csv", "send because over15minutes : " + getReadableTime(s.getPostTime()));
                                     extraForQ = noti.extras.get("android.title").toString() + " " + noti.extras.get("android.text").toString();
                                     if(!checkOtherNotiExist(context)) {
-                                        CSVHelper.storeToCSV("wipeNoti.csv", "NoOtherNoti : " + extraForQ);
+                                        CSVHelper.storeToCSV("MCNoti_cancel.csv", "NoOtherNoti : " + extraForQ);
                                         createNotification(context,s.getPackageName(), s.getPostTime(), 2, 102, extraForQ);
                                         haveSentMCNoti.add(label);
                                     }
@@ -648,7 +662,11 @@ public class NotificationListenService extends NotificationListenerService {
                 notiReason = reasonNotiRemoved;
             }
             nhandle_or_dismiss = notificationCode;
-        }else{
+        }else if(noti_id == 9 && ifRecordingRightNow){ // recording Notification
+            Intent stopRecordingIntent = new Intent(this, StopRecordingReceiver.class);
+            stopRecordingIntent.setAction(STOP);
+            sendBroadcast(stopRecordingIntent);
+        } else{
             nhandle_or_dismiss = -1;
         }
 
@@ -729,12 +747,47 @@ public class NotificationListenService extends NotificationListenerService {
         Log.d(TAG, "checkOtherNotiExist false");
         return false;
     }
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public boolean checkRecordingNotiExist(Context context){
+
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications =
+                new StatusBarNotification[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            notifications = notificationManager.getActiveNotifications();
+        }
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == 200) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    @SuppressLint("NewApi")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public boolean ifRecordingTransit(Context context,String condition){
+
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications =
+                new StatusBarNotification[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            notifications = notificationManager.getActiveNotifications();
+        }
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == 200) {
+                String title = notification.getNotification().extras.getString("android.title");
+                if(title.equals(condition))
+                    return true;
+            }
+        }
+        return false;
+    }
 
 
-    public NotificationManager notifManager;
     public void createNotification(Context context, String app, long time, int questionType, final int NOTIFY_ID, String title) {
 //        final int NOTIFY_ID = 100; // ID of notification
-
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         String id = QUESTIONNAIRE_CHANNEL_ID;// default_channel_id
 //        String title = QUESTIONNAIRE_TITLE_MC; // Default Channel
         String  aMessage = QUESTIONNAIRE_TITLE_CONTENT;
@@ -745,12 +798,10 @@ public class NotificationListenService extends NotificationListenerService {
         canFillQuestionnaire = true;
         timeForQ = getReadableTime(time);;
 
+
         Intent intent = null;
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
-        if (notifManager == null) {
-            notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel mChannel = notifManager.getNotificationChannel(id);
@@ -802,7 +853,16 @@ public class NotificationListenService extends NotificationListenerService {
         ResponseDataRecord responseDataRecord = new ResponseDataRecord(getReadableTime(new Date().getTime()),relatedId,questionType);
         appDatabase db = appDatabase.getDatabase(context);
         db.repsonseDataRecordDao().insertAll(responseDataRecord);
-        CSVHelper.storeToCSV("wipeNoti.csv","startNotiTime : "+getReadableTime(new Date().getTime()));
+        CSVHelper.storeToCSV("response.csv","original : "+responseDataRecord.toString());
+        if(noti_id == 100){
+            CSVHelper.storeToCSV("MC_cancel.csv","startNotiTime : "+getReadableTime(new Date().getTime()));
+        }else if(noti_id == 101) {
+            CSVHelper.storeToCSV("randomAlarm.csv","startNotiTime : "+getReadableTime(new Date().getTime()));
+        }else if(noti_id == 102){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv","startNotiTime : "+getReadableTime(new Date().getTime()));
+        }
+
+
 //        CountDownTask countDownTask = new CountDownTask();
 //        countDownTask.startRepeatingTask(responseDataRecord);
 //        new Thread(
@@ -845,8 +905,16 @@ public class NotificationListenService extends NotificationListenerService {
         when.set(Calendar.MINUTE, target_min);
         when.set(Calendar.SECOND, 0);
         when.set(Calendar.MILLISECOND, 0);
-        CSVHelper.storeToCSV("randomAlarm.csv","target_hour"+target_hour);
-        CSVHelper.storeToCSV("randomAlarm.csv","target_min"+target_min);
+        if(noti_id == 100){
+            CSVHelper.storeToCSV("MC_cancel.csv", "cancel target_hour" + target_hour);
+            CSVHelper.storeToCSV("MC_cancel.csv", "cancel target_min" + target_min);
+        }else if(noti_id == 101) {
+            CSVHelper.storeToCSV("randomAlarm.csv", "cancel target_hour" + target_hour);
+            CSVHelper.storeToCSV("randomAlarm.csv", "cancel target_min" + target_min);
+        }else if(noti_id == 102){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv", "cancel target_hour" + target_hour);
+            CSVHelper.storeToCSV("MCNoti_cancel.csv", "cancel target_min" + target_min);
+        }
 
         setAlarm(context, when,requestCode,SURVEYDELETEALARM,noti_id); // 11 12 13 14 15 16 17 18
     }
@@ -861,17 +929,20 @@ public class NotificationListenService extends NotificationListenerService {
         JSONObject object = new JSONObject();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            object.put("delete setAlarm",action);
+            object.put("set delete setAlarm",action);
             object.put("when",sdf.format(when.getTime()));
             object.put("requestCode",requestCode).toString();
-            object.put("noti_id",noti_id).toString();
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        CSVHelper.storeToCSV("randomAlarm.csv",object.toString());
-
+        if(noti_id == 100){
+            CSVHelper.storeToCSV("MC_cancel.csv", object.toString());
+        }else if(noti_id == 101) {
+            CSVHelper.storeToCSV("randomAlarm.csv", object.toString());
+        }else if(noti_id == 102){
+            CSVHelper.storeToCSV("MCNoti_cancel.csv", object.toString());
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             am.setAlarmClock(new AlarmManager.AlarmClockInfo(when.getTimeInMillis(),alarmIntent),alarmIntent);
@@ -882,6 +953,186 @@ public class NotificationListenService extends NotificationListenerService {
 
         Log.i(TAG, "Alarm set " + sdf.format(when.getTime()));
 
+    }
+
+    public void startRecordingNotification(Context context, int NOTIFY_ID){
+
+        Notification notification=getRecordingNotification(context,RECORDING_TITLE_CONTENT);
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifManager.notify(NOTIFY_ID,notification);
+    }
+
+    public void updateRecordingNotification(Context context,int NOTIFY_ID){
+        Notification notification=getRecordingNotification(context,RECORDING_ONGOING_CONTENT);
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifManager.notify(NOTIFY_ID,notification);
+    }
+    public void stopRecordingNotification(Context context, int NOTIFY_ID){
+        Notification notification=getRecordingNotification(context,RECORDING_STOP_CONTENT);
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifManager.notify(NOTIFY_ID,notification);
+
+    }
+    public static void cancelNotification(Context context,int noti_id){
+
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications =
+                new StatusBarNotification[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            notifications = notifManager.getActiveNotifications();
+        }
+        for (StatusBarNotification notification : notifications) {
+            if(notification.getId() == noti_id) {
+                notifManager.cancel(noti_id);
+                if(noti_id == 100 && questionaireType==0){
+                    CSVHelper.storeToCSV("MC_cancel.csv","finish questionnaire without click notification : "+getReadableTime(new Date().getTime()));
+                }else if(noti_id == 101 && questionaireType==1){
+                    CSVHelper.storeToCSV("randomAlarm.csv","finish questionnaire without click notification : "+getReadableTime(new Date().getTime()));
+                }else if(noti_id == 102 && questionaireType==2){
+                    CSVHelper.storeToCSV("MCNoti_cancel.csv","finish questionnaire without click notification : "+getReadableTime(new Date().getTime()));
+                }
+            }
+        }
+
+
+    }
+    public Notification getRecordingNotification(Context context, String title){
+        NotificationManager notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String id = RECORDING_NOTIFICATION_ID;
+        PendingIntent startRecordingPendingIntent = null;
+        PendingIntent stopRecordingPendingIntent = null;
+        PendingIntent cancelRecordingPendingIntent = null;
+
+        Intent recordIntent = new Intent(context, BackgroundScreeenRecorderActivity.class);
+        recordIntent.setAction(START_RECORDING);
+//      if(!pendingIntentExist(context,recordIntent,123))
+        if(!ifRecordingRightNow)
+            startRecordingPendingIntent =  PendingIntent.getActivity(context, 123, recordIntent,  PendingIntent.FLAG_CANCEL_CURRENT);
+        // stop
+        Intent stopRecordingIntent = new Intent(context, StopRecordingReceiver.class);
+        stopRecordingIntent.setAction(STOP);
+//        if(!pendingIntentExist(context,recordIntent,124))
+        if(ifRecordingRightNow)
+            stopRecordingPendingIntent = PendingIntent.getBroadcast(context, 124,
+                stopRecordingIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        // cancel
+
+        stopRecordingIntent.setAction(DELETE);
+//        if(!pendingIntentExist(context,recordIntent,125))
+            cancelRecordingPendingIntent = PendingIntent.getBroadcast(context, 125,
+                    stopRecordingIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+
+        NotificationCompat.Builder builder;
+
+        NotificationCompat.Action startRecordingAction =
+                new NotificationCompat.Action.Builder(R.drawable.ic_radio_button_checked_black_24dp,
+                        RECORDING_NOW, startRecordingPendingIntent)
+                        .build();
+
+        NotificationCompat.Action stopRecordingAction =
+                new NotificationCompat.Action.Builder(R.drawable.ic_highlight_off_black_24dp,
+                        STOPRECORDING, stopRecordingPendingIntent)
+                        .build();
+
+        NotificationCompat.Action cancelRecordingAction =
+                new NotificationCompat.Action.Builder(R.drawable.ic_highlight_off_black_24dp,
+                        CANCELRECORDING, cancelRecordingPendingIntent)
+                        .build();
+
+        if (notifManager == null) {
+            notifManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = notifManager.getNotificationChannel(id);
+            if (mChannel == null) {
+                mChannel = new NotificationChannel(id, RECORDING_TITLE, importance);
+                mChannel.enableVibration(true);
+                mChannel.setVibrationPattern(new long[] {0, 300});
+                //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                notifManager.createNotificationChannel(mChannel);
+            }
+            builder = new NotificationCompat.Builder(context, id);
+
+
+            builder.setContentTitle(title)                             // required
+                    .setSmallIcon(R.drawable.hand_shake_noti)   // required
+                    .setContentText(context.getString(R.string.app_name)) // required
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setContentIntent(null)
+                    .setOnlyAlertOnce(true)
+                    .setAutoCancel(false)
+//                    .addAction(startRecordingAction)
+//                    .addAction(stopRecordingAction)
+                    //.setTicker(null)
+                    //.setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                    .setVibrate(new long[] {0, 300 });
+        }
+        else {
+            builder = new NotificationCompat.Builder(context, id);
+            builder.setContentTitle(title)                            // required
+                    .setSmallIcon(R.drawable.hand_shake_noti)   // required
+                    .setContentText(this.getString(R.string.app_name)) // required
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setContentIntent(null)
+                    .setOnlyAlertOnce(true)
+//                    .addAction(startRecordingAction)
+//                    .addAction(stopRecordingAction)
+                    .setVibrate(new long[] {0, 300})
+                    .setAutoCancel(false)
+//                    .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
+                    .setPriority(Notification.PRIORITY_HIGH);
+        }
+        Log.d(TAG,"recording title : "+ title);
+        if(title.equals(RECORDING_ONGOING_CONTENT)||ifRecordingRightNow){
+            builder.addAction(stopRecordingAction);
+        }else if(title.equals(RECORDING_TITLE_CONTENT)){
+            builder.addAction(startRecordingAction)
+                    .addAction(stopRecordingAction);
+        }else{
+            builder.addAction(startRecordingAction);
+        }
+        builder.addAction(cancelRecordingAction);
+        Notification notification = builder.build();
+
+        notification.tickerView = null;
+        recordNotificationChanging = true;
+        return notification;
+    }
+
+    public boolean pendingIntentExist(Context context,Intent intent,int requestCode){
+        boolean alarmUp;
+        if(requestCode == 123){
+            alarmUp = (PendingIntent.getActivity(context, requestCode,
+                    intent,
+                    PendingIntent.FLAG_NO_CREATE) != null);
+        }else {
+            alarmUp = (PendingIntent.getBroadcast(context, requestCode,
+                    intent,
+                    PendingIntent.FLAG_NO_CREATE) != null);
+        }
+       return alarmUp;
+    }
+    public void cancelRecordNotiPendingIntent(Context context){
+            Intent recordIntent = new Intent(context, BackgroundScreeenRecorderActivity.class);
+            recordIntent.setAction(START_RECORDING);
+            Intent stopRecordingIntent = new Intent(context, StopRecordingReceiver.class);
+            stopRecordingIntent.setAction(STOP);
+            Intent cancelRecordingIntent = new Intent(context, StopRecordingReceiver.class);
+            cancelRecordingIntent.setAction(DELETE);
+
+            if(pendingIntentExist(context,recordIntent,123)){
+                PendingIntent.getActivity(context, 123, recordIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+            }else if (pendingIntentExist(context,stopRecordingIntent,124)){
+                PendingIntent.getBroadcast(context, 124, stopRecordingIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+            }else if(pendingIntentExist(context,cancelRecordingIntent,125)){
+                PendingIntent.getBroadcast(context, 125, cancelRecordingIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+            }
     }
 
 
@@ -945,10 +1196,6 @@ public class NotificationListenService extends NotificationListenerService {
         ).start();
 
     }
-
-
-
-
 
 
 

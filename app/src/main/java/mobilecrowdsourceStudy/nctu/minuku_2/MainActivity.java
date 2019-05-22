@@ -13,12 +13,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.projection.MediaProjectionManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.service.notification.StatusBarNotification;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -37,6 +35,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 //        startService(new Intent(getBaseContext(), CheckpointAndReminderService.class));
 
 
-        //   logUser();
+           logUser();
 
 
 
@@ -507,14 +507,14 @@ public class MainActivity extends AppCompatActivity {
     public void startpermission() {
         Log.d(TAG,"startpermission");
         //Maybe useless in this project.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-
-            //If the draw over permission is not available open the settings screen
-            //to grant the permission.
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, DRAW_OVER_OTHER_APP_PERMISSION);
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+//
+//            //If the draw over permission is not available open the settings screen
+//            //to grant the permission.
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//                    Uri.parse("package:" + getPackageName()));
+//            startActivityForResult(intent, DRAW_OVER_OTHER_APP_PERMISSION);
+//        }
 
         startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));  // 協助工具
 
@@ -645,7 +645,10 @@ public class MainActivity extends AppCompatActivity {
 //        responseDataRecord.setFinishedTime(getReadableTime(finishAnswerTime));
 //        responseDataRecord.setIfComplete(true);
         db.repsonseDataRecordDao().updateData(relatedId,getReadableTime(startAnswerTime),getReadableTime(finishAnswerTime),true);
-       // db.repsonseDataRecordDao().insertAll(responseDataRecord);
+        String str = "";
+        str += "startTime : "+getReadableTime(startAnswerTime)+ " finishTime : "+getReadableTime(finishAnswerTime);
+        CSVHelper.storeToCSV("response.csv","modify : "+str);
+        // db.repsonseDataRecordDao().insertAll(responseDataRecord);
         relatedId++;
         startAnswerTime = Long.valueOf(0);
         finishAnswerTime = Long.valueOf(0);
@@ -692,32 +695,9 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, aText, Toast.LENGTH_SHORT).show();
     }
     public void  cancelNotification(){
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        StatusBarNotification[] notifications =
-                new StatusBarNotification[0];
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            notifications = notificationManager.getActiveNotifications();
-        }
-        for (StatusBarNotification notification : notifications) {
-            if (questionaireType==0&&notification.getId() == 100) {
-                notificationManager.cancel(100);
-                CSVHelper.storeToCSV("wipeNoti.csv","mobileAccess - userCancelNotiTime : "+getReadableTime(new Date().getTime()));
-
-                // Do something.
-            }
-            if (questionaireType==2&&notification.getId() == 102) {
-                notificationManager.cancel(102);
-                CSVHelper.storeToCSV("wipeNoti.csv","NotiListener - userCancelNotiTime : "+getReadableTime(new Date().getTime()));
-
-                // Do something.
-            }
-            if (questionaireType==1&&notification.getId() == 101) {
-                notificationManager.cancel(101);
-                CSVHelper.storeToCSV("wipeNoti.csv","alarmReceiver - userCancelNotiTime : "+getReadableTime(new Date().getTime()));
-
-                // Do something.
-            }
-        }
+        NotificationListenService.cancelNotification(this,100);
+        NotificationListenService.cancelNotification(this,102);
+        NotificationListenService.cancelNotification(this,101);
     }
 
 
@@ -813,9 +793,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void logUser() {
-//        Crashlytics.setUserIdentifier(Constants.DEVICE_ID);
-//    }
+    private void logUser() {
+        Crashlytics.setUserIdentifier(Constants.DEVICE_ID);
+    }
 
 
     @Override

@@ -23,6 +23,8 @@ public class SharedVariables {
     public static String notiPackForRandom = "";
     public static Long notiPostedTimeForRandom = Long.valueOf(0);
 
+    public static boolean recordNotificationChanging = false;
+
     public  static String extraForQ = "";
 //    public static class nPostInfo {
 //        public long postedTime = 0;
