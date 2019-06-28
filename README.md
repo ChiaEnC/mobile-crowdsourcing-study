@@ -24,4 +24,4 @@ There are two type of the contextual data when user is performing mobile crowdso
 The questionnaires try to collect the ground of the situation, motivation, current activity from users that phone log and video recorder couldn't provide. 
 
 ## CI/CD System 
-please refer to this [repository](https://github.com/zi3120courses/project-p4-minuku-team.git). The implementation is the final project of "Programming and Development Courses" taught by Professor Ansgar Fehnker in University of Twente.
+Please refer to this [repository](https://github.com/zi3120courses/project-p4-minuku-team.git). The implementation is the final project of "Programming and Development Courses" taught by Professor Ansgar Fehnker in University of Twente.
